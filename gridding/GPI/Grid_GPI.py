@@ -65,9 +65,8 @@ class ExternalNode(gpi.NodeAPI):
     Eff MTX Z - number of pixels in the final image (Z), nominally (without zero-padding) given by FOV/resolution
       Add 25% to matrix for "true resolution" for (e.g.) stack of cones, spherical distributed spiral, FLORET
       Output data are gridded to a matrix 50% larger than this to mitigate gridding artifacts
-    dx, dy, dz - for off-center FOV correction. Specify number of pixels in each direction to shift (in image space)
+    dx, dy, dz - for off-center FOV correction.  Specify number of pixels in each direction to shift (in image space)
                  prior to gridding.
-                 Default values assume no correction (0, 0, 0) and widget is collapsed.
 
       Note on Input dimensions: If coords is N dimensions, with the last used for the 2D/3D information,
                                   1) weights must have N-1 dimensions, of the same shape as corresponding coords
@@ -102,9 +101,9 @@ class ExternalNode(gpi.NodeAPI):
         self.addWidget('Slider','Dims per Set',min=1)
         self.addWidget('SpinBox','Eff MTX XY', min=5, val=240)
         self.addWidget('SpinBox','Eff MTX Z',  min=5, val=240)
-        self.addWidget('DoubleSpinBox','dx (pixels)', val=0.0, collapsed=True)
-        self.addWidget('DoubleSpinBox','dy (pixels)', val=0.0, collapsed=True)
-        self.addWidget('DoubleSpinBox','dz (pixels)', val=0.0, collapsed=True)
+        self.addWidget('DoubleSpinBox','dx (pixels)', val=0.0)
+        self.addWidget('DoubleSpinBox','dy (pixels)', val=0.0)
+        self.addWidget('DoubleSpinBox','dz (pixels)', val=0.0)
 
         # IO Ports
         self.addInPort('data', 'NPYarray', dtype=[np.complex64, np.complex128],
@@ -135,7 +134,7 @@ class ExternalNode(gpi.NodeAPI):
 
         if data is not None:
           if data.ndim < crds.ndim - 1:
-            self.log.warn("# of dimensions of data too small")
+            self.log.warn("# of dimensions of data to small")
             return 1
           else: 
             for i in range(crds.ndim-1):
@@ -177,8 +176,22 @@ class ExternalNode(gpi.NodeAPI):
               mtx_z *= 1.25                                                     
             self.setAttr('Eff MTX Z', val = mtx_z)                   
 
-        # Auto offset calculation has been removed and GUI input values are used if activated. 
-        # For this, node FOVshift should be used.  
+          # Auto offset calculation.  Values reported in mm, change to # pixels
+          m_off = 0.001*float(inparam['m_offc'][0])
+          p_off = 0.001*float(inparam['p_offc'][0])
+          xoff = m_off*float(mtx_xy)/float(inparam['spFOVXY'][0])
+          yoff = p_off*float(mtx_xy)/float(inparam['spFOVXY'][0])
+          self.setAttr('dx (pixels)', val=xoff)
+          self.setAttr('dy (pixels)', val=yoff)
+          if crds.shape[-1] == 3:                                               
+            s_off = 0.001*float(inparam['s_offc'][0])
+            zoff = s_off*float(mtx_z) /float(inparam['spFOVZ'][0])
+            # shift half pixel when the number of slices is even with
+            # distributed spirals. ZQL
+            if (int(float(inparam['spSTYPE'][0])) in [1,2]) and \
+              (int(self.getVal('Eff MTX Z'))%2 == 0):
+              zoff = zoff - 0.5
+            self.setAttr('dz (pixels)', val=zoff)
 
         return 0
 
