@@ -192,7 +192,9 @@ class ExternalNode(gpi.NodeAPI):
         data = self.getData('data')
         dps = self.getVal('Dims per Set')
         mtx_xy = (3*self.getVal('Eff MTX XY')/2) # 1.5X OVERSAMPLE
+        mtx_xy += mtx_xy % 2 # MiS: make sure the matrix size is even
         mtx_z  = (3*self.getVal('Eff MTX Z')/2) # 1.5X OVERSAMPLE
+        mtx_z += mtx_z % 2 # MiS: make sure the matrix size is even
         dx = self.getVal('dx (pixels)')
         dy = self.getVal('dy (pixels)')
         dz = self.getVal('dz (pixels)')
