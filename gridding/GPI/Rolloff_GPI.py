@@ -99,21 +99,27 @@ class ExternalNode(gpi.NodeAPI):
         # Note we are reversing the order of dimensions - necessary for python-c
         if nrd == 1:
           oshape[-1] = np.ceil(2*dshape[-1]/3.)
+          oshape[-1] -= oshape[-1] % 2 # MiS ensure matrix is even
           outdim = np.array([oshape[-1] ],dtype=np.int64)
           nsets = np.prod(oshape)/np.prod(outdim)
           newdshape = np.array((nsets,dshape[-1]))
           outdim1 = outdim
         elif nrd == 2:
           oshape[-1] = np.ceil(2*dshape[-1]/3.)
+          oshape[-1] -= oshape[-1] % 2 # MiS ensure matrix is even
           oshape[-2] = np.ceil(2*dshape[-2]/3.)
+          oshape[-2] -= oshape[-2] % 2 # MiS ensure matrix is even
           outdim = np.array([oshape[-1], oshape[-2] ],dtype=np.int64)
           nsets = np.prod(oshape)/np.prod(outdim)
           newdshape = np.array((nsets,dshape[-2],dshape[-1]))
           outdim1 = outdim
         elif nrd == 3:
           oshape[-1] = np.ceil(2*dshape[-1]/3.)
+          oshape[-1] -= oshape[-1] % 2 # MiS ensure matrix is even
           oshape[-2] = np.ceil(2*dshape[-2]/3.)
+          oshape[-2] -= oshape[-2] % 2 # MiS ensure matrix is even
           oshape[-3] = np.ceil(2*dshape[-3]/3.)
+          oshape[-3] -= oshape[-3] % 2 # MiS ensure matrix is even
           outdim = np.array([oshape[-1], oshape[-2], oshape[-3] ],dtype=np.int64)
           outdim1 = np.array([oshape[-3], oshape[-2], oshape[-1] ],dtype=np.int64)
           nsets = np.prod(oshape)/np.prod(outdim)
