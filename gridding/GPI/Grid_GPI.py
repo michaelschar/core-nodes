@@ -191,13 +191,15 @@ class ExternalNode(gpi.NodeAPI):
         wghts = self.getData('weighting')
         data = self.getData('data')
         dps = self.getVal('Dims per Set')
-        mtx_xy = (3*self.getVal('Eff MTX XY')/2) # 1.5X OVERSAMPLE
+        mtx_xy = (3*self.getVal('Eff MTX XY')//2) # 1.5X OVERSAMPLE
+        self.log.debug(mtx_xy)
         mtx_xy += mtx_xy % 2 # MiS: make sure the matrix size is even
-        mtx_z  = (3*self.getVal('Eff MTX Z')/2) # 1.5X OVERSAMPLE
+        mtx_z  = (3*self.getVal('Eff MTX Z')//2) # 1.5X OVERSAMPLE
         mtx_z += mtx_z % 2 # MiS: make sure the matrix size is even
         dx = self.getVal('dx (pixels)')
         dy = self.getVal('dy (pixels)')
         dz = self.getVal('dz (pixels)')
+        self.log.debug(mtx_xy)
 
         # Each gridded set will have npts points gridded onto it
         # There are separate coordinates for ncsets of different gridded units (lines, planes, volumes)
@@ -241,6 +243,7 @@ class ExternalNode(gpi.NodeAPI):
         if crds.shape[crds.ndim-1] == 3:
           outdim = np.array([mtx_xy,mtx_xy,mtx_z],dtype=np.int64)
 
+        self.log.debug(outdim)
         outdim1 = outdim
         if crds.shape[crds.ndim-1] == 3: # For Distributed Spirals
             outdim1 = np.array([mtx_z,mtx_xy,mtx_xy],dtype=np.int64)
