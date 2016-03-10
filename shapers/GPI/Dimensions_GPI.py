@@ -463,7 +463,7 @@ class ExternalNode(gpi.NodeAPI):
         if (dim_events):
             for event in dim_events:
                 self.info_message = ""
-                index = int(event[10:12])
+                index = int(event[10:13].replace(']',''))
                 new_val = self.getVal(event)
                 self.setAttr(event, val=new_val)
                 if op == 0 and (self.ndim + index) >= 0:
